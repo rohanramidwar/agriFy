@@ -1,0 +1,72 @@
+version: "3"
+
+services:
+  # Infrastructure services
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27027:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - agrify-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      - agrify-network
+
+  # Application services
+  aedes-service:
+    build:
+      context: ./aedes-service
+    ports:
+      - "1883:1883" # MQTT
+      - "8888:8888" # Web socket
+    depends_on:
+      - rabbitmq
+    networks:
+      - agrify-network
+
+  # parser-service:
+  #   build:
+  #     context: ./parser-service
+  #   depends_on:
+  #     - aedes-service
+  #     - rabbitmq
+  #   networks:
+  #     - agrify-network
+
+  # soil-data-ms:
+  #   build:
+  #     context: ./soil-data-ms
+  #   depends_on:
+  #     - mongodb
+  #     - rabbitmq
+  #   networks:
+  #     - agrify-network
+
+  # weather-data-ms:
+  #   build:
+  #     context: ./weather-data-ms
+  #   depends_on:
+  #     - mongodb
+  #     - rabbitmq
+  #   networks:
+  #     - agrify-network
+
+networks:
+  agrify-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

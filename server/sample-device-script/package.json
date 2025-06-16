@@ -1,0 +1,13 @@
+{
+  "name": "sample-device-script",
+  "version": "1.0.0",
+  "description": "Sample script to simulate IoT devices sending data to MQTT broker",
+  "main": "sample-device.js",
+  "scripts": {
+    "start": "node sample-device.js"
+  },
+  "dependencies": {
+    "mqtt": "^5.0.5",
+    "dotenv": "^16.3.1"
+  }
+} 

@@ -1,0 +1,19 @@
+{
+  "name": "aedes-service",
+  "version": "1.0.0",
+  "description": "MQTT broker service for AgriFy",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development nodemon -r dotenv/config index.js dotenv_config_path=.env.development"
+  },
+  "dependencies": {
+    "aedes": "^0.50.0",
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.3.1",
+    "websocket-stream": "^5.5.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+} 
