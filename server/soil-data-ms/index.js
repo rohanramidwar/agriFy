@@ -65,7 +65,7 @@ app.get("/", (req, res) => {
 // Get all soil data
 app.get("/api/soil-data", async (req, res) => {
   try {
-    const { limit = 100, offset = 0, sensorId } = req.query;
+    const { limit = 7, offset = 0, sensorId } = req.query;
 
     const query = sensorId ? { sensorId } : {};
 

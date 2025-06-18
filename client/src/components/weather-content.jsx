@@ -1,7 +1,38 @@
 import { Cloud, Sun, CloudRain, Wind } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { RotatingLines } from "react-loader-spinner";
 
 const WeatherContent = () => {
+  const [loading, setLoading] = useState(true);
+  const [weatherData, setWeatherData] = useState([]);
+
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3002/api/weather-data",
+          {
+            params: {
+              limit: 1,
+              offset: 0,
+              sensorId: "weather-station-001",
+            },
+          }
+        );
+
+        setWeatherData(response.data[0].value);
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeatherData();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div>
@@ -20,7 +51,19 @@ const WeatherContent = () => {
             <Sun className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24°C</div>
+            <div className="text-2xl font-bold">
+              {weatherData?.temperature ? (
+                weatherData?.temperature + "°C"
+              ) : (
+                <RotatingLines
+                  height="25"
+                  width="25"
+                  radius="9"
+                  color="#CFDF1C"
+                  ariaLabel="Google-loading"
+                />
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">Feels like 26°C</p>
           </CardContent>
         </Card>
@@ -31,7 +74,19 @@ const WeatherContent = () => {
             <Cloud className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">68%</div>
+            <div className="text-2xl font-bold">
+              {weatherData?.humidity ? (
+                weatherData?.humidity + "%"
+              ) : (
+                <RotatingLines
+                  height="25"
+                  width="25"
+                  radius="9"
+                  color="#CFDF1C"
+                  ariaLabel="Google-loading"
+                />
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">Optimal for crops</p>
           </CardContent>
         </Card>
@@ -42,7 +97,19 @@ const WeatherContent = () => {
             <CloudRain className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2.5mm</div>
+            <div className="text-2xl font-bold">
+              {weatherData?.rainfall ? (
+                weatherData?.rainfall + "mm"
+              ) : (
+                <RotatingLines
+                  height="25"
+                  width="25"
+                  radius="9"
+                  color="#CFDF1C"
+                  ariaLabel="Google-loading"
+                />
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">Last 24 hours</p>
           </CardContent>
         </Card>
@@ -53,7 +120,19 @@ const WeatherContent = () => {
             <Wind className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12 km/h</div>
+            <div className="text-2xl font-bold">
+              {weatherData?.windSpeed ? (
+                weatherData?.windSpeed + "km/h"
+              ) : (
+                <RotatingLines
+                  height="25"
+                  width="25"
+                  radius="9"
+                  color="#CFDF1C"
+                  ariaLabel="Google-loading"
+                />
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">From northwest</p>
           </CardContent>
         </Card>

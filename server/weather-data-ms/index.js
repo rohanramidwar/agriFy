@@ -66,7 +66,7 @@ app.get("/", (req, res) => {
 // Get all weather data
 app.get("/api/weather-data", async (req, res) => {
   try {
-    const { limit = 100, offset = 0, sensorId } = req.query;
+    const { limit = 1, offset = 0, sensorId } = req.query;
 
     const query = sensorId ? { sensorId } : {};
 
@@ -122,10 +122,10 @@ async function connectToRabbitMQ() {
       if (msg !== null) {
         try {
           const content = msg.content.toString();
-          console.log("Received weather data:", content);
+          // console.log("Received weather data:", content);
 
           const data = JSON.parse(content);
-          console.log("Parsed weather data:", data);
+          // console.log("Parsed weather data:", data);
 
           // Create new weather data document
           const weatherData = new WeatherData({
@@ -136,14 +136,14 @@ async function connectToRabbitMQ() {
           });
 
           // Log the data being saved
-          console.log(
-            "Saving weather data with values:",
-            JSON.stringify(weatherData)
-          );
+          // console.log(
+          //   "Saving weather data with values:",
+          //   JSON.stringify(weatherData)
+          // );
 
           // Save to database
           const savedData = await weatherData.save();
-          console.log("Weather data saved to database:", savedData);
+          // console.log("Weather data saved to database:", savedData);
 
           // Acknowledge message
           channel.ack(msg);

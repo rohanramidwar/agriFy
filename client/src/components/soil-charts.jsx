@@ -24,42 +24,9 @@ import {
   CardTitle,
 } from "./ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
-
-// Mock data for the charts
-const moistureData = [
-  { time: "00:00", moisture: 65 },
-  { time: "04:00", moisture: 68 },
-  { time: "08:00", moisture: 62 },
-  { time: "12:00", moisture: 58 },
-  { time: "16:00", moisture: 55 },
-  { time: "20:00", moisture: 60 },
-];
-
-const temperatureData = [
-  { time: "00:00", temperature: 18 },
-  { time: "04:00", temperature: 16 },
-  { time: "08:00", temperature: 20 },
-  { time: "12:00", temperature: 25 },
-  { time: "16:00", temperature: 28 },
-  { time: "20:00", temperature: 22 },
-];
-
-const phData = [
-  { day: "Mon", ph: 6.8 },
-  { day: "Tue", ph: 6.5 },
-  { day: "Wed", ph: 6.9 },
-  { day: "Thu", ph: 7.1 },
-  { day: "Fri", ph: 6.7 },
-  { day: "Sat", ph: 6.8 },
-  { day: "Sun", ph: 7.0 },
-];
-
-const nutrientData = [
-  { nutrient: "Nitrogen", value: 85, color: "#22c55e" },
-  { nutrient: "Phosphorus", value: 72, color: "#3b82f6" },
-  { nutrient: "Potassium", value: 68, color: "#f59e0b" },
-  { nutrient: "Calcium", value: 91, color: "#8b5cf6" },
-];
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { RotatingLines } from "react-loader-spinner";
 
 const chartConfig = {
   moisture: {
@@ -81,6 +48,77 @@ const chartConfig = {
 };
 
 const SoilCharts = () => {
+  const [loading, setLoading] = useState(true);
+  const [moistureData, setMoistureData] = useState([]);
+  const [temperatureData, setTemperatureData] = useState([]);
+  const [phData, setPhData] = useState([]);
+  const [nutrientData, setNutrientData] = useState([]);
+
+  useEffect(() => {
+    const fetchSoilData = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/soil-data",
+          {
+            params: {
+              limit: 7,
+              offset: 0,
+              sensorId: "soil-sensor-001",
+            },
+          }
+        );
+
+        const data = response.data.reverse();
+
+        setMoistureData(
+          data.map((soil) => ({
+            time: new Date(soil.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            moisture: soil.value.moisture,
+          }))
+        );
+
+        setTemperatureData(
+          data.map((soil) => ({
+            time: new Date(soil.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            temperature: soil.value.temperature,
+          }))
+        );
+
+        setPhData(
+          data.map((soil) => ({
+            time: new Date(soil.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            ph: soil.value.ph,
+          }))
+        );
+
+        setNutrientData(
+          data.map((soil) => ({
+            time: new Date(soil.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            value: soil.value.nutrient,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching soil data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSoilData();
+  }, []);
+
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {/* Moisture Chart */}
@@ -109,7 +147,19 @@ const SoilCharts = () => {
         </CardContent>
         <CardFooter className="flex-col items-start gap-2 text-sm">
           <div className="flex gap-2 font-medium leading-none">
-            Current: 60% <TrendingUp className="h-4 w-4" />
+            Current:
+            {moistureData.length ? (
+              moistureData[6]?.moisture + "%"
+            ) : (
+              <RotatingLines
+                height="25"
+                width="25"
+                radius="9"
+                color="#CFDF1C"
+                ariaLabel="Google-loading"
+              />
+            )}
+            <TrendingUp className="h-4 w-4" />
           </div>
           <div className="leading-none text-muted-foreground">
             Optimal range: 50-70%
@@ -144,7 +194,19 @@ const SoilCharts = () => {
         </CardContent>
         <CardFooter className="flex-col items-start gap-2 text-sm">
           <div className="flex gap-2 font-medium leading-none">
-            Current: 22°C <TrendingUp className="h-4 w-4" />
+            Current:{" "}
+            {temperatureData.length ? (
+              temperatureData[6]?.temperature + "°C"
+            ) : (
+              <RotatingLines
+                height="25"
+                width="25"
+                radius="9"
+                color="#CFDF1C"
+                ariaLabel="Google-loading"
+              />
+            )}
+            <TrendingUp className="h-4 w-4" />
           </div>
           <div className="leading-none text-muted-foreground">
             Optimal range: 18-25°C
@@ -163,7 +225,7 @@ const SoilCharts = () => {
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[200px]">
             <BarChart data={phData}>
-              <XAxis dataKey="day" />
+              <XAxis dataKey="time" />
               <YAxis domain={[6, 8]} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="ph" fill="var(--color-ph)" />
@@ -172,7 +234,19 @@ const SoilCharts = () => {
         </CardContent>
         <CardFooter className="flex-col items-start gap-2 text-sm">
           <div className="flex gap-2 font-medium leading-none">
-            Current: 7.0 pH <TrendingUp className="h-4 w-4" />
+            Current:{" "}
+            {phData.length ? (
+              phData[6]?.ph + "pH"
+            ) : (
+              <RotatingLines
+                height="25"
+                width="25"
+                radius="9"
+                color="#CFDF1C"
+                ariaLabel="Google-loading"
+              />
+            )}{" "}
+            <TrendingUp className="h-4 w-4" />
           </div>
           <div className="leading-none text-muted-foreground">
             Optimal range: 6.5-7.5 pH
@@ -193,8 +267,8 @@ const SoilCharts = () => {
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[200px]">
             <BarChart data={nutrientData} layout="horizontal">
-              <XAxis type="number" domain={[0, 100]} />
-              <YAxis dataKey="nutrient" type="category" width={80} />
+              <XAxis dataKey="time" />
+              <YAxis />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="value" fill="var(--color-nutrients)" />
             </BarChart>
@@ -202,7 +276,19 @@ const SoilCharts = () => {
         </CardContent>
         <CardFooter className="flex-col items-start gap-2 text-sm">
           <div className="flex gap-2 font-medium leading-none">
-            Average: 79% <TrendingUp className="h-4 w-4" />
+            Average:{" "}
+            {nutrientData.length ? (
+              nutrientData[6]?.value + "%"
+            ) : (
+              <RotatingLines
+                height="25"
+                width="25"
+                radius="9"
+                color="#CFDF1C"
+                ariaLabel="Google-loading"
+              />
+            )}
+            <TrendingUp className="h-4 w-4" />
           </div>
           <div className="leading-none text-muted-foreground">
             All nutrients within optimal range
