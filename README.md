@@ -7,8 +7,7 @@ Built with the React, Node.js, Tailwind
 ## Features
 
  - Node.js microservices architecture
- - Dashboard containing Charts for better monitoring
- - RabbitMQ for seamless inter-service communication
+ - React dashboard having charts for easy reading
  - ... and much more
 
 
